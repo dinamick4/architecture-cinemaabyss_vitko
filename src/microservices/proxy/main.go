@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"strconv"
 )
 
 // Models
@@ -21,6 +22,7 @@ type Movie struct {
 func main() {
 
 	// Set up HTTP routes
+	http.HandleFunc("/api/users", handleUsers)
 	http.HandleFunc("/api/movies", handleMovies)
 	http.HandleFunc("/health", handleHealth)
 
@@ -38,11 +40,17 @@ func handleHealth(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]bool{"status": true})
 }
 
+func handleUsers(w http.ResponseWriter, r *http.Request) {
+    var targetURL string = os.Getenv("MONOLITH_URL") + "/api/users"
+    proxyRequest(targetURL, w, r)
+}
+
 
 func handleMovies(w http.ResponseWriter, r *http.Request) {
-    migrationStr := os.Getenv("GRADUAL_MIGRATION")
-    shouldMigrate := strings.ToLower(migrationStr) == "true"
+    gradualMigrationStr := os.Getenv("GRADUAL_MIGRATION")
+    migrationPercentInt, _ := strconv.Atoi(os.Getenv("MOVIES_MIGRATION_PERCENT"))
 
+    shouldMigrate := strings.ToLower(gradualMigrationStr) == "true" && migrationPercentInt <= 99
     var endpoint string = "/api/movies"
     var targetURL string
     if shouldMigrate {

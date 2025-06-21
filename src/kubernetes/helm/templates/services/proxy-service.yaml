@@ -25,18 +25,50 @@ spec:
     spec:
       containers:
       - name: proxy-service
-        ..... тут
+        image: {{ .Values.proxyService.image.repository }}:{{ .Values.proxyService.image.tag }}
+        imagePullPolicy: {{ .Values.proxyService.image.pullPolicy }}
+        ports:
+        - containerPort: "{{ .Values.proxyService.service.targetPort }}"
+        env:
+        - name: PORT
+          value: "{{ .Values.proxysService.service.targetPort }}"
+          envFrom:
+          - configMapRef:
+              name: cinemaabyss-config
+          - secretRef:
+              name: cinemaabyss-secrets
+          resources:
+            {{- toYaml .Values.proxyService.resources | nindent 10 }}
+          readinessProbe:
+            httpGet:
+              path: /api/proxy/health
+              port: {{ .Values.proxyService.service.targetPort }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/proxy/health
+              port: {{ .Values.proxyService.service.targetPort }}
+            initialDelaySeconds: 15
+            periodSeconds: 20
+        restartPolicy: Always
+        imagePullSecrets:
+          - name: dockerconfigjson
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: proxy-service
-  namespace: {{ .Values.global.namespace }}
+  namespace: cinemaabyss
   labels:
     app: proxy-service
     app.kubernetes.io/name: {{ include "cinemaabyss.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
   selector:
-    ... и тут
+    app: proxy-service
+  ports:
+    - port: 8000
+      targetPort: 8000
+  type: ClusterIP
 {{- end }}

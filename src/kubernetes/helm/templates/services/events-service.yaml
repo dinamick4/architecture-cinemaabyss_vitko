@@ -39,19 +39,6 @@ spec:
             name: cinemaabyss-secrets
         resources:
           {{- toYaml .Values.eventsService.resources | nindent 10 }}
-        readinessProbe:
-          httpGet:
-            path: /api/events/health
-            port: {{ .Values.eventsService.service.targetPort }}
-          initialDelaySeconds: 5
-          periodSeconds: 10
-        livenessProbe:
-          httpGet:
-            path: /api/events/health
-            port: {{ .Values.eventsService.service.targetPort }}
-          initialDelaySeconds: 15
-          periodSeconds: 20
-      restartPolicy: Always
       imagePullSecrets:
         - name: dockerconfigjson
 ---

@@ -39,19 +39,6 @@ spec:
             name: cinemaabyss-secrets
         resources:
           {{- toYaml .Values.proxyService.resources | nindent 10 }}
-        readinessProbe:
-          httpGet:
-            path: /api/proxy/health
-            port: {{ .Values.proxyService.service.targetPort }}
-          initialDelaySeconds: 5
-          periodSeconds: 10
-        livenessProbe:
-          httpGet:
-            path: /api/proxy/health
-            port: {{ .Values.proxyService.service.targetPort }}
-          initialDelaySeconds: 15
-          periodSeconds: 20
-      restartPolicy: Always
       imagePullSecrets:
         - name: dockerconfigjson
 ---

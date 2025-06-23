@@ -31,7 +31,7 @@ spec:
         - containerPort: "{{ .Values.proxyService.service.targetPort }}"
         env:
         - name: PORT
-          value: "{{ .Values.proxysService.service.targetPort }}"
+          value: "{{ .Values.proxyService.service.targetPort }}"
           envFrom:
           - configMapRef:
               name: cinemaabyss-config

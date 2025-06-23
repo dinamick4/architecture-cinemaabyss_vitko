@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
       - name: events-service
-        image: {{ .Values.eventsService.image.repository } }:{{ .Values.eventsService.image.tag }}
+        image: {{ .Values.eventsService.image.repository }}:{{ .Values.eventsService.image.tag }}
         imagePullPolicy: {{ .Values.eventsService.image.pullPolicy }}
         ports:
         - containerPort: "{{ .Values.eventsService.service.targetPort }}"

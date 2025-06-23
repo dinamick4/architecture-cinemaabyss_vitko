@@ -8,6 +8,8 @@ import (
 	"os"
 	"strings"
 	"strconv"
+	"math/rand"
+	"time"
 )
 
 // Models
@@ -50,12 +52,24 @@ func handleMovies(w http.ResponseWriter, r *http.Request) {
     gradualMigrationStr := os.Getenv("GRADUAL_MIGRATION")
     migrationPercentInt, _ := strconv.Atoi(os.Getenv("MOVIES_MIGRATION_PERCENT"))
 
-    shouldMigrate := strings.ToLower(gradualMigrationStr) == "true" && migrationPercentInt <= 99
+    shouldMigrate := strings.ToLower(gradualMigrationStr) == "true"
     var endpoint string = "/api/movies"
     var targetURL string
-    if shouldMigrate {
+    // Случайная миграция при миграционном проценте равном 50%
+    if shouldMigrate && migrationPercentInt == 50 {
+        rand.Seed(int64(time.Now().UnixNano())) // Используем случайность на основе текущего времени
+
+        // Берем случайное число от 0 до 100 и выбираем один из двух сервисов
+        randomNum := rand.Intn(100)
+        log.Printf("random %s", randomNum)
+        if randomNum < 50 { // 50% вероятность отправить запрос в MOVIES_SERVICE_URL
+            targetURL = os.Getenv("MOVIES_SERVICE_URL") + endpoint
+        } else { // Остальные 50% отправляются в MONOLITH_URL
+            targetURL = os.Getenv("MONOLITH_URL") + endpoint
+        }
+    } else if shouldMigrate && migrationPercentInt > 0 && migrationPercentInt <= 100 { // Полная миграция в случае процента больше нуля
         targetURL = os.Getenv("MOVIES_SERVICE_URL") + endpoint
-    } else {
+    } else { // Иначе используем монолит
         targetURL = os.Getenv("MONOLITH_URL") + endpoint
     }
     log.Printf("Invoke %s", targetURL)

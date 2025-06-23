@@ -28,7 +28,7 @@ spec:
         image: {{ .Values.proxyService.image.repository }}:{{ .Values.proxyService.image.tag }}
         imagePullPolicy: {{ .Values.proxyService.image.pullPolicy }}
         ports:
-        - containerPort: "{{ .Values.proxyService.service.targetPort }}"
+        - containerPort: {{ .Values.proxyService.service.targetPort }}
         env:
         - name: PORT
           value: "{{ .Values.proxyService.service.targetPort }}"

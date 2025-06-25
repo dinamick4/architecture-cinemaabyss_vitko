@@ -9,7 +9,8 @@ metadata:
 data:
   init.sql: |
     -- Initialize CinemaAbyss Database Schema
-
+    CREATE DATABASE IF NOT EXISTS {{ .Values.database.name }};
+    
     -- Connect to the database
     \c {{ .Values.database.name }};
 

@@ -1,0 +1,58 @@
+@startuml
+title Container diagram «CinemaAbyss»
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(user, "User", "User of the «CinemaAbysse» system")
+System(CinemaAbyssSystem, "«CinemaAbyss» System", "Streaming service online cinema theater")
+
+Container_Boundary(CinemaAbyssSystem, "Cinema abyss system") {
+  Container(WebApp, "Web Application", "Go, Spring", "Handles user interactions")
+  Container(MobileApp, "Mobile Application", "Go, Spring", "Handles user interactions")
+  Container(SmartTVApp, "SmartTV Application", "Go, Spring", "Handles user interactions")
+
+  Container(APIGateway, "API Gateway")
+
+  Container(UserProfileService, "User profile Service", "Go")
+  Container(AuthorizationService, "Authorization Service", "Go")
+  Container(MoviesService, "Movies Service", "Go")
+  Container(SubscriptionsService, "Subscription Service", "Go")
+  Container(PaymentService, "Payment Service", "Go")
+  Container(EventsService, "Events Service", "kafka")
+
+  Container(Payment_Database, "Payment Database", "PostgreSQL", "Stores payment data")
+  Container(Movie_Database, "Movie Database", "PostgreSQL", "Stores movies data")
+  Container(User_Database, "User Database", "PostgreSQL", "Stores authorization data")
+}
+
+Rel(user, WebApp,)
+Rel(user, MobileApp,)
+Rel(user, SmartTVApp,)
+
+System_Ext(bank, "Bank System", "External bank for processing payments")
+System_Ext(api_online_cinema, "External online cinema API")
+
+
+Rel(WebApp, APIGateway ,"API Gateway requests")
+Rel(MobileApp, APIGateway ,"API Gateway requests")
+Rel(SmartTVApp, APIGateway ,"API Gateway requests")
+
+Rel(APIGateway,UserProfileService,"Processes client profile requests")
+Rel(APIGateway,AuthorizationService,"Processes authorization and identification requests")
+Rel(APIGateway,MoviesService,"Processes requests movies")
+Rel(APIGateway,SubscriptionsService,"Processes requests subscriptions")
+Rel(APIGateway,PaymentService,"Processes payment requests")
+
+Rel(PaymentService, Payment_Database,"Reads/Writes payment data")
+Rel(PaymentService,bank,"Processes payments")
+Rel(PaymentService,EventsService,"read/write events")
+Rel(MoviesService, Movie_Database,"Reads/Writes movies data")
+Rel(MoviesService, EventsService,"read/write events")
+Rel(SubscriptionsService, User_Database,"Reads/Writes subscriptions data")
+Rel(AuthorizationService, User_Database,"Reads/Writes authorization data")
+Rel(AuthorizationService, EventsService,"read/write events")
+Rel(UserProfileService, User_Database,"Reads/Writes user profile data")
+Rel(MoviesService,api_online_cinema,"Video online cinema")
+@enduml
